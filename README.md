@@ -1,16 +1,85 @@
-# React + Vite
+📊 EOA (EARS OF ANTS) — 프론트엔드 현황
+🗺️ 전체 페이지 구조
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+EOA_frontend/
+├── src/
+│   ├── pages/               ← 7개 페이지 완성
+│   │   ├── Login.jsx           ✅ 로그인
+│   │   ├── Signup.jsx          ✅ 회원가입
+│   │   ├── Home.jsx            ✅ 홈 (메인)
+│   │   ├── SearchResult.jsx    ✅ 종목 검색 결과
+│   │   ├── Profile.jsx         ✅ 프로필
+│   │   ├── WatchlistManager.jsx✅ 관심 종목 관리
+│   │   └── HotStocks.jsx       ✅ 핫한 종목 발견 (신규)
+│   │
+│   ├── components/          ← 14개 컴포넌트
+│   │   ├── layout/
+│   │   │   ├── Header.jsx       검색창 + 유저 드롭다운
+│   │   │   ├── Footer.jsx
+│   │   │   ├── LeftSidebar.jsx
+│   │   │   └── RightSidebar/
+│   │   │       ├── HotStockCard.jsx  (더보기 → /hot 연결)
+│   │   │       ├── TrendChart.jsx
+│   │   │       └── AlertCard.jsx
+│   │   ├── home/
+│   │   │   └── MainTable.jsx    종목 테이블
+│   │   ├── search/
+│   │   │   ├── StockSummary.jsx
+│   │   │   ├── SearchChart.jsx
+│   │   │   ├── TweetCard.jsx
+│   │   │   └── TweetList.jsx
+│   │   ├── auth/
+│   │   │   ├── LoginForm.jsx
+│   │   │   └── SignupForm.jsx
+│   │   └── common/
+│   │       └── LogoImg.jsx      로고 이미지 + 오류시 이니셜 폴백
+│   │
+│   ├── context/
+│   │   └── AuthContext.jsx  ← 전역 상태 관리
+│   └── data/
+│       └── watchStocks.js   ← 초기 관심 종목 더미 데이터
+🛣️ 라우팅 맵
+URL	페이지	주요 기능
+/	→ /login 리다이렉트	
+/login	로그인	이메일 + 비밀번호 입력
+/signup	회원가입	계정 생성
+/home	🏠 홈	종목 테이블 + 우측 사이드바
+/search?q=종목명	🔍 검색 결과	주가 차트 + 트윗 목록
+/profile	👤 프로필	유저 정보 조회/수정
+/watchlist	⭐ 관심 종목 관리	추가 · 삭제 · 추천 종목
+/hot	🔥 핫한 종목 발견	트윗↑ + 주가↑ 랭킹 (신규)
+⚙️ 전역 상태 (AuthContext)
 
-Currently, two official plugins are available:
+AuthContext 제공 값
+├── isLoggedIn              로그인 여부
+├── user { name, email, phone, avatar, joinDate }
+├── login() / logout()
+├── updateUser(updates)     프로필 수정
+├── watchlist[]             관심 종목 배열
+├── addToWatchlist(stock)   중복 방지 추가
+└── removeFromWatchlist(name)
+🔥 핫한 종목 발견 페이지 기능 상세
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+정렬 탭 4가지
+  🔥 종합점수  →  tweets × 주가상승률 (기본)
+  💬 트윗량    →  트윗 수 많은 순
+  📈 주가 상승률 →  상승% 높은 순
+  🚀 트윗 급등률 →  트윗 변화율 높은 순
 
-## React Compiler
+카드 구성
+  🥇🥈🥉 순위 메달  |  로고  |  종목명/티커
+  주가 + 상승률     |  트윗수 + 변화율  |  종합점수
+  🔕/🔔 알람 버튼   |  + 관심종목 추가 버튼
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+알람 기능
+  🔔 클릭 → 알람 ON  →  우상단 SMS 스타일 토스트 팝업
+  🔔 다시 클릭 → 알람 OFF
+  토스트 3.5초 후 자동 소멸
+🐛 이번 세션 버그 수정
+파일	문제	수정
+WatchlistManager.jsx	함수 선언 누락으로 훅이 컴포넌트 밖에 있었음	export default function WatchlistManager() 추가
+WatchlistManager.jsx	navigate 선언 없이 사용	const navigate = useNavigate() 추가
+📦 Git 현황
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+브랜치: feature/dummy
+커밋:   "프론트 더미 구현-1"
