@@ -3,6 +3,7 @@ import Footer from "../components/layout/Footer.jsx";
 import LeftSidebar from "../components/layout/LeftSidebar.jsx";
 
 import StockSummary from "../components/search/StockSummary.jsx";
+import AiAnalysis from "../components/search/AiAnalysis.jsx";
 import TweetList from "../components/search/TweetList.jsx";
 
 import TrendChart from "../components/layout/RightSidebar/TrendChart.jsx";
@@ -19,6 +20,7 @@ export default function SearchResult() {
 
         <main className="flex-1 min-w-0 flex flex-col gap-4">
           <StockSummary />
+          <AiAnalysis />
           <TweetList />
         </main>
 
