@@ -113,9 +113,9 @@ const DUMMY = {
 
 function transform(raw) {
   const scores = {
-    positive: Math.round(raw.sentiment_scores.positive * 100 * 10) / 10,
-    negative: Math.round(raw.sentiment_scores.negative * 100 * 10) / 10,
-    neutral:  Math.round(raw.sentiment_scores.neutral  * 100 * 10) / 10,
+    positive: Math.round(raw.sentiment_scores.positive * 10) / 10,
+    negative: Math.round(raw.sentiment_scores.negative * 10) / 10,
+    neutral:  Math.round(raw.sentiment_scores.neutral  * 10) / 10,
   };
   const main = Object.entries(scores).reduce((a, b) => a[1] > b[1] ? a : b)[0];
   return {
@@ -137,8 +137,8 @@ export async function fetchAnalysis(ticker) {
     return DUMMY[ticker] ?? null;
   }
   try {
-    const raw = await get(`/api/stocks/${ticker}/analysis/`);
-    return transform(raw);
+    const res = await get(`/api/stocks/${ticker}/analysis/`);
+    return transform(res.data);
   } catch {
     return null;
   }

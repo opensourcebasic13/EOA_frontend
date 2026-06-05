@@ -24,7 +24,7 @@ function transform(t) {
     avatar:   `https://i.pravatar.cc/40?u=${encodeURIComponent(t.author_handle)}`,
     tag:      t.sentiment_label,
     hot:      t.is_hot,
-    text:     t.text,
+    text:     t.content,
     hashtags: t.hashtags ?? [],
     comments: t.reply_count,
     retweets: t.repost_count,

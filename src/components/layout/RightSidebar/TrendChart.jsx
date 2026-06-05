@@ -1,10 +1,10 @@
 function TrendChart() {
   // 더미 트렌드 데이터
-  const points = [30, 45, 35, 55, 40, 65, 50, 75, 60, 85, 70, 95, 80, 90, 78, 92];
+  //   const points = [30, 45, 35, 55, 40, 65, 50, 75, 60, 85, 70, 95, 80, 90, 78, 92];
   const points2 = [20, 30, 25, 40, 30, 50, 38, 58, 45, 65, 52, 72, 60, 70, 62, 75];
 
-  const max = Math.max(...points);
-  const min = Math.min(...points);
+  const max = Math.max(...points2);
+  const min = Math.min(...points2);
   const w = 260, h = 90;
 
   const toXY = (arr) =>
@@ -13,7 +13,7 @@ function TrendChart() {
       y: h - ((p - min) / (max - min)) * (h - 10) - 5,
     }));
 
-  const pts1 = toXY(points);
+  const pts1 = toXY(points2);
   const pts2 = toXY(points2);
 
   const makePath = (pts) =>

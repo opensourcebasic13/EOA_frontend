@@ -4,7 +4,7 @@ import { watchStocks as INITIAL_WATCHLIST } from "../data/watchStocks";
 const AuthContext = createContext(null);
 
 const INITIAL_USER = {
-  name: "김나연",
+  name: "김단국",
   email: "rlawldks7788@gmail.com",
   phone: "010-1234-5678",
   joinDate: "2024년 1월 15일",
