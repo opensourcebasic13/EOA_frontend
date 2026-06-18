@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import LogoImg from "../common/LogoImg";
 import { fetchTrending } from "../../api/stocks";
 
+
 function MainTable() {
   const navigate = useNavigate();
   const [stocks, setStocks] = useState([]);
@@ -23,7 +24,10 @@ function MainTable() {
             <h2 className="text-xl font-bold text-gray-900">실시간 트윗량 많은 주식</h2>
             <span className="text-gray-400 text-sm cursor-pointer">ℹ</span>
           </div>
-          <button className="text-blue-600 text-sm font-semibold hover:underline flex items-center gap-1">
+          <button
+            onClick={() => navigate("/tweet-trending")}
+            className="text-blue-600 text-sm font-semibold hover:underline flex items-center gap-1"
+          >
             더보기 →
           </button>
         </div>
@@ -50,7 +54,7 @@ function MainTable() {
               {stocks.map((s) => (
                 <tr
                   key={s.rank}
-                  onClick={() => navigate(`/search?q=${encodeURIComponent(s.name)}`)}
+                  onClick={() => navigate(`/search?q=${encodeURIComponent(s.ticker)}`)}
                   className="border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition"
                 >
                   <td className="py-4 pr-4 text-gray-500 font-medium">{s.rank}</td>

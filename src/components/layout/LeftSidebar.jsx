@@ -30,7 +30,7 @@ function LeftSidebar() {
             {watchlist.map((s) => (
               <div
                 key={s.name}
-                onClick={() => navigate(`/search?q=${encodeURIComponent(s.name)}`)}
+                onClick={() => navigate(`/search?q=${encodeURIComponent(s.ticker)}`)}
                 className={`flex items-center gap-3 px-2 py-2.5 rounded-xl cursor-pointer transition
                   ${isActive(s)
                     ? "bg-blue-50 border-l-[3px] border-blue-500 pl-[5px]"

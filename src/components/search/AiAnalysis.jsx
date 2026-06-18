@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { fetchAnalysis } from "../../api/analysis";
-import { QUERY_TO_TICKER } from "../../utils/tickerMap";
+import { resolveTicker } from "../../utils/tickerMap";
 
 const SENTIMENT = {
   positive: { label: "긍정", bg: "bg-red-100",  text: "text-red-600",  bar: "bg-red-400"  },
@@ -61,7 +61,7 @@ function Empty({ message }) {
 export default function AiAnalysis() {
   const [searchParams] = useSearchParams();
   const query  = searchParams.get("q") || "테슬라";
-  const ticker = QUERY_TO_TICKER[query] ?? null;
+  const ticker = resolveTicker(query);
 
   const [data,    setData]    = useState(null);
   const [loading, setLoading] = useState(true);

@@ -1,33 +1,133 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth, DEFAULT_ALARM } from "../context/AuthContext";
 import Header from "../components/layout/Header.jsx";
 import Footer from "../components/layout/Footer.jsx";
 import LogoImg from "../components/common/LogoImg";
+import { fetchTrending } from "../api/stocks";
+
+const PRICE_OPTIONS  = [1, 3, 5, 10];
+const TWEET_OPTIONS  = [20, 50, 100, 200];
+
+function AlarmModal({ stock, alarm, onClose, onToggle, onUpdate, onConfirm }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
+      onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-80 p-6 flex flex-col gap-4"
+        onClick={e => e.stopPropagation()}>
+
+        {/* 헤더 */}
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-bold text-gray-900">{stock.name} 알림 설정</p>
+            <p className="text-xs text-gray-400 mt-0.5">{stock.ticker}</p>
+          </div>
+          <button onClick={onClose}
+            className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100 transition">
+            ✕
+          </button>
+        </div>
+
+        {/* 알림 ON/OFF */}
+        <div className="flex items-center justify-between py-3 border-y border-gray-100">
+          <div>
+            <p className="text-sm font-semibold text-gray-800">알림 받기</p>
+            <p className="text-xs text-gray-400 mt-0.5">조건 충족 시 앱 알림 발송</p>
+          </div>
+          <button
+            onClick={onToggle}
+            className={`relative w-11 h-6 rounded-full transition-colors duration-200
+              ${alarm.enabled ? "bg-blue-600" : "bg-gray-200"}`}>
+            <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200
+              ${alarm.enabled ? "translate-x-5" : "translate-x-0.5"}`} />
+          </button>
+        </div>
+
+        {/* 임계값 설정 */}
+        <div className={`flex flex-col gap-4 transition-opacity ${alarm.enabled ? "opacity-100" : "opacity-40 pointer-events-none"}`}>
+
+          {/* 주가 변동 */}
+          <div>
+            <p className="text-xs font-semibold text-gray-700 mb-2">📈 주가 변동 알림</p>
+            <div className="flex gap-2">
+              {PRICE_OPTIONS.map(v => (
+                <button key={v}
+                  onClick={() => onUpdate({ priceThreshold: v })}
+                  className={`flex-1 py-1.5 rounded-lg text-xs font-semibold border transition
+                    ${alarm.priceThreshold === v
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "bg-white text-gray-500 border-gray-200 hover:border-blue-300"}`}>
+                  ±{v}%
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 트윗량 급증 */}
+          <div>
+            <p className="text-xs font-semibold text-gray-700 mb-2">💬 트윗량 급증 알림</p>
+            <div className="flex gap-2">
+              {TWEET_OPTIONS.map(v => (
+                <button key={v}
+                  onClick={() => onUpdate({ tweetThreshold: v })}
+                  className={`flex-1 py-1.5 rounded-lg text-xs font-semibold border transition
+                    ${alarm.tweetThreshold === v
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "bg-white text-gray-500 border-gray-200 hover:border-blue-300"}`}>
+                  +{v}%
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <p className="text-[10px] text-gray-400 leading-relaxed">
+            * 두 조건 중 하나라도 충족되면 알림이 발송됩니다.<br />
+            * 임계값은 추후 종목별 변동성 데이터 기반으로 자동 보정될 예정입니다.
+          </p>
+        </div>
+
+        <button onClick={onConfirm}
+          className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition">
+          {alarm.enabled ? "알림 설정하기" : "확인"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function AlarmToast({ stock, visible, onClose }) {
+  const now = new Date();
+  const time = `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+  return (
+    <div style={{ transition: "all 0.35s cubic-bezier(0.34,1.56,0.64,1)" }}
+      className={`fixed top-5 right-5 z-50 w-80
+        ${visible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"}`}>
+      <div className="bg-gray-900 text-white rounded-2xl shadow-2xl overflow-hidden">
+        <div className="flex items-center gap-2 px-4 pt-3 pb-1">
+          <div className="w-5 h-5 rounded-md bg-blue-500 flex items-center justify-center text-xs">🔔</div>
+          <span className="text-xs text-gray-400 font-medium flex-1">EOA 알림</span>
+          <span className="text-xs text-gray-500">{time}</span>
+          <button onClick={onClose} className="text-gray-500 hover:text-white transition ml-1 text-xs">✕</button>
+        </div>
+        <div className="px-4 pb-4 pt-1">
+          <p className="text-sm leading-relaxed">
+            🔔 <span className="font-bold text-blue-400">[{stock?.name}]</span> 알림이 설정되었습니다.
+            조건 충족 시 알림을 보내드릴게요!
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 
-const ALL_STOCKS = [
-  { name: "테슬라",       ticker: "TSLA",       price: "181.06달러",   change: "2.57%",  dir: "up",   logo: "https://logo.clearbit.com/tesla.com",        tweets: "24,851", tweetChange: "23.4%", tweetDir: "up"   },
-  { name: "엔비디아",     ticker: "NVDA",       price: "1,037.89달러", change: "1.12%",  dir: "down", logo: "https://logo.clearbit.com/nvidia.com",        tweets: "18,932", tweetChange: "12.8%", tweetDir: "up"   },
-  { name: "팔란티어",     ticker: "PLTR",       price: "23.48달러",    change: "4.18%",  dir: "up",   logo: "https://logo.clearbit.com/palantir.com",      tweets: "12,309", tweetChange: "45.6%", tweetDir: "up"   },
-  { name: "AMD",          ticker: "AMD",        price: "167.18달러",   change: "1.35%",  dir: "up",   logo: "https://logo.clearbit.com/amd.com",           tweets: "9,842",  tweetChange: "15.7%", tweetDir: "up"   },
-  { name: "마이크로소프트",ticker: "MSFT",      price: "420.72달러",   change: "0.21%",  dir: "down", logo: "https://logo.clearbit.com/microsoft.com",     tweets: "9,102",  tweetChange: "3.6%",  tweetDir: "down" },
-  { name: "애플",         ticker: "AAPL",       price: "192.58달러",   change: "0.53%",  dir: "down", logo: "https://logo.clearbit.com/apple.com",         tweets: "8,245",  tweetChange: "5.2%",  tweetDir: "down" },
-  { name: "삼성전자",     ticker: "005930.KS",  price: "77,500원",     change: "0.64%",  dir: "down", logo: "https://logo.clearbit.com/samsung.com",       tweets: "6,723",  tweetChange: "8.9%",  tweetDir: "up"   },
-  { name: "SK하이닉스",   ticker: "000660.KS",  price: "194,000원",    change: "1.36%",  dir: "up",   logo: "https://logo.clearbit.com/skhynix.com",       tweets: "5,876",  tweetChange: "10.1%", tweetDir: "up"   },
-  { name: "코인베이스",   ticker: "COIN",       price: "233.41달러",   change: "0.98%",  dir: "up",   logo: "https://logo.clearbit.com/coinbase.com",      tweets: "4,912",  tweetChange: "6.7%",  tweetDir: "up"   },
-  { name: "아마존",       ticker: "AMZN",       price: "186.67달러",   change: "0.73%",  dir: "down", logo: "https://logo.clearbit.com/amazon.com",        tweets: "4,521",  tweetChange: "2.1%",  tweetDir: "down" },
-  { name: "메타",         ticker: "META",       price: "512.33달러",   change: "1.82%",  dir: "up",   logo: "https://logo.clearbit.com/meta.com",          tweets: "7,341",  tweetChange: "18.3%", tweetDir: "up"   },
-  { name: "구글",         ticker: "GOOGL",      price: "176.45달러",   change: "0.94%",  dir: "up",   logo: "https://logo.clearbit.com/google.com",        tweets: "5,123",  tweetChange: "7.2%",  tweetDir: "up"   },
-];
-
-const RECOMMENDED = [
-  { ...ALL_STOCKS[2], reason: "트윗량 급등", reasonIcon: "🚀" },  
-  { ...ALL_STOCKS[3], reason: "상승 모멘텀",  reasonIcon: "📈" }, 
-  { ...ALL_STOCKS[0], reason: "트윗 1위",     reasonIcon: "🔥" }, 
-  { ...ALL_STOCKS[10], reason: "AI 관심 급증", reasonIcon: "🤖" }, 
-  { ...ALL_STOCKS[11], reason: "안정 성장",   reasonIcon: "💡" },  
-  { ...ALL_STOCKS[8], reason: "코인 연동",    reasonIcon: "₿"  }, 
+const REASON_LIST = [
+  { reason: "트윗 1위",     reasonIcon: "🔥" },
+  { reason: "트윗량 급등",  reasonIcon: "🚀" },
+  { reason: "상승 모멘텀",  reasonIcon: "📈" },
+  { reason: "AI 관심 급증", reasonIcon: "🤖" },
+  { reason: "안정 성장",    reasonIcon: "💡" },
+  { reason: "스트리밍 강세", reasonIcon: "🎬" },
 ];
 
 
@@ -80,12 +180,62 @@ function RecommendedCard({ stock, isAdded, onAdd }) {
 
 
 export default function WatchlistManager() {
-  const { watchlist, addToWatchlist, removeFromWatchlist } = useAuth();
+  const { watchlist, addToWatchlist, removeFromWatchlist, getAlarm, toggleAlarm, updateAlarm } = useAuth();
   const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery]   = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
+  const [alarmModal, setAlarmModal]     = useState(null);
+  const [toast, setToast]               = useState({ visible: false, stock: null });
+  const [allStocks, setAllStocks]       = useState([]);
+  const [recommended, setRecommended]   = useState([]);
+  const toastTimer                      = useRef(null);
   const searchRef = useRef(null);
+
+  useEffect(() => {
+    fetchTrending().then(data => {
+      const normalized = data.map(s => ({
+        ...s,
+        change: s.priceChange,
+        dir:    s.priceDir,
+      }));
+      setAllStocks(normalized);
+      setRecommended(
+        normalized.slice(0, 6).map((s, i) => ({
+          ...s,
+          reason:     REASON_LIST[i].reason,
+          reasonIcon: REASON_LIST[i].reasonIcon,
+        }))
+      );
+    });
+  }, []);
+
+  useEffect(() => {
+    if (toast.visible) {
+      clearTimeout(toastTimer.current);
+      toastTimer.current = setTimeout(() => setToast(t => ({ ...t, visible: false })), 3500);
+    }
+    return () => clearTimeout(toastTimer.current);
+  }, [toast.visible]);
+
+  const handleToggleAlarm = async (stock) => {
+    const wasEnabled = getAlarm(stock.name).enabled;
+
+    if (!wasEnabled) {
+      // 알람 켤 때 브라우저 알림 권한 요청
+      if (Notification.permission === "denied") {
+        alert("브라우저 알림이 차단되어 있습니다.\n주소창 왼쪽 자물쇠 아이콘 → 알림 → 허용으로 변경해주세요.");
+        return;
+      }
+      if (Notification.permission === "default") {
+        const result = await Notification.requestPermission();
+        if (result !== "granted") return;
+      }
+    }
+
+    toggleAlarm(stock.name);
+    if (!wasEnabled) setToast({ visible: true, stock });
+  };
 
   // 다른 곳 누르면 드롭다운 닫힘
   useEffect(() => {
@@ -101,7 +251,7 @@ export default function WatchlistManager() {
   const isInWatchlist = (name) => watchlist.some(s => s.name === name);
 
   // 검색 결과 필터링
-  const searchResults = ALL_STOCKS.filter(s => {
+  const searchResults = allStocks.filter(s => {
     if (!searchQuery.trim()) return false;
     return (
       s.name.includes(searchQuery) ||
@@ -117,6 +267,26 @@ export default function WatchlistManager() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
+      <AlarmToast
+        stock={toast.stock}
+        visible={toast.visible}
+        onClose={() => setToast(t => ({ ...t, visible: false }))}
+      />
+      {alarmModal && (
+        <AlarmModal
+          stock={alarmModal}
+          alarm={getAlarm(alarmModal.name)}
+          onClose={() => setAlarmModal(null)}
+          onToggle={() => handleToggleAlarm(alarmModal)}
+          onUpdate={(updates) => updateAlarm(alarmModal.name, updates)}
+          onConfirm={() => {
+            if (getAlarm(alarmModal.name).enabled) {
+              setToast({ visible: true, stock: alarmModal });
+            }
+            setAlarmModal(null);
+          }}
+        />
+      )}
       <Header />
 
       <div className="max-w-5xl mx-auto w-full px-6 py-8 flex flex-col gap-5">
@@ -236,6 +406,19 @@ export default function WatchlistManager() {
                         </p>
                       </div>
 
+                      {/* 알림 버튼 */}
+                      <button
+                        onClick={() => setAlarmModal(stock)}
+                        title="알림 설정"
+                        className={`w-7 h-7 rounded-full flex items-center justify-center transition shrink-0
+                          ${getAlarm(stock.name).enabled
+                            ? "bg-blue-100 text-blue-500"
+                            : "text-gray-300 hover:bg-gray-100 hover:text-gray-500 opacity-0 group-hover:opacity-100"
+                          }`}
+                      >
+                        {getAlarm(stock.name).enabled ? "🔔" : "🔕"}
+                      </button>
+
                       {/* 삭제 버튼 (hover 시 표시) */}
                       <button
                         onClick={() => removeFromWatchlist(stock.name)}
@@ -263,7 +446,7 @@ export default function WatchlistManager() {
               <p className="text-xs text-gray-400 mb-4">트윗량 급증 · 상승세 종목 추천</p>
 
               <div className="space-y-3">
-                {RECOMMENDED.map(stock => (
+                {recommended.map(stock => (
                   <RecommendedCard
                     key={stock.name}
                     stock={stock}

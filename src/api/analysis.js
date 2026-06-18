@@ -7,7 +7,7 @@ const DUMMY = {
     main_sentiment: "positive",
     sentiment_scores: { positive: 62.5, negative: 24.0, neutral: 13.5 },
     keywords: ["robotaxi", "delivery", "valuation", "FSD", "earnings"],
-    model_info: { summary_model: "mT5", sentiment_model: "FinBERT" },
+    model_info: { summary_model: "BART", sentiment_model: "FinBERT" },
     analyzed_at: "2026-05-28T10:10:00Z",
   },
   NVDA: {
@@ -16,7 +16,7 @@ const DUMMY = {
     main_sentiment: "positive",
     sentiment_scores: { positive: 74.2, negative: 14.3, neutral: 11.5 },
     keywords: ["AI", "GPU", "datacenter", "H100", "Blackwell"],
-    model_info: { summary_model: "mT5", sentiment_model: "FinBERT" },
+    model_info: { summary_model: "BART", sentiment_model: "FinBERT" },
     analyzed_at: "2026-05-28T10:10:00Z",
   },
   PLTR: {
@@ -25,7 +25,7 @@ const DUMMY = {
     main_sentiment: "positive",
     sentiment_scores: { positive: 70.1, negative: 18.2, neutral: 11.7 },
     keywords: ["AIP", "government", "defense", "AI", "contracts"],
-    model_info: { summary_model: "mT5", sentiment_model: "FinBERT" },
+    model_info: { summary_model: "BART", sentiment_model: "FinBERT" },
     analyzed_at: "2026-05-28T10:10:00Z",
   },
   AMD: {
@@ -34,7 +34,7 @@ const DUMMY = {
     main_sentiment: "positive",
     sentiment_scores: { positive: 58.3, negative: 27.4, neutral: 14.3 },
     keywords: ["MI300X", "datacenter", "NVIDIA", "competition", "AI"],
-    model_info: { summary_model: "mT5", sentiment_model: "FinBERT" },
+    model_info: { summary_model: "BART", sentiment_model: "FinBERT" },
     analyzed_at: "2026-05-28T10:10:00Z",
   },
   MSFT: {
@@ -43,7 +43,7 @@ const DUMMY = {
     main_sentiment: "neutral",
     sentiment_scores: { positive: 45.2, negative: 22.1, neutral: 32.7 },
     keywords: ["Azure", "Copilot", "AI", "cloud", "OpenAI"],
-    model_info: { summary_model: "mT5", sentiment_model: "FinBERT" },
+    model_info: { summary_model: "BART", sentiment_model: "FinBERT" },
     analyzed_at: "2026-05-28T10:10:00Z",
   },
   AAPL: {
@@ -52,34 +52,16 @@ const DUMMY = {
     main_sentiment: "neutral",
     sentiment_scores: { positive: 41.0, negative: 35.5, neutral: 23.5 },
     keywords: ["iPhone", "China", "AI", "Vision Pro", "services"],
-    model_info: { summary_model: "mT5", sentiment_model: "FinBERT" },
+    model_info: { summary_model: "BART", sentiment_model: "FinBERT" },
     analyzed_at: "2026-05-28T10:10:00Z",
   },
-  "005930.KS": {
-    ticker: "005930.KS",
-    summary_ko: "삼성전자는 HBM 공급 확대와 파운드리 수주 기대감이 있으나, 메모리 가격 하락 압박이 우려 요인으로 지목되고 있습니다.",
-    main_sentiment: "neutral",
-    sentiment_scores: { positive: 38.4, negative: 38.1, neutral: 23.5 },
-    keywords: ["HBM", "foundry", "memory", "반도체", "DRAM"],
-    model_info: { summary_model: "mT5", sentiment_model: "FinBERT" },
-    analyzed_at: "2026-05-28T10:10:00Z",
-  },
-  "000660.KS": {
-    ticker: "000660.KS",
-    summary_ko: "SK하이닉스는 HBM3E 양산 성공과 엔비디아 납품 확대로 강한 긍정 심리가 형성되고 있습니다.",
+  NFLX: {
+    ticker: "NFLX",
+    summary_ko: "넷플릭스는 광고 요금제 성장과 콘텐츠 투자 확대로 구독자 증가세가 이어지고 있으며, 긍정적 전망이 우세합니다.",
     main_sentiment: "positive",
-    sentiment_scores: { positive: 68.9, negative: 17.3, neutral: 13.8 },
-    keywords: ["HBM3E", "NVIDIA", "메모리", "AI", "양산"],
-    model_info: { summary_model: "mT5", sentiment_model: "FinBERT" },
-    analyzed_at: "2026-05-28T10:10:00Z",
-  },
-  COIN: {
-    ticker: "COIN",
-    summary_ko: "코인베이스는 비트코인 강세장 진입 기대와 미국 크립토 규제 완화 흐름으로 긍정적 분위기가 우세합니다.",
-    main_sentiment: "positive",
-    sentiment_scores: { positive: 60.2, negative: 25.1, neutral: 14.7 },
-    keywords: ["Bitcoin", "regulation", "crypto", "ETF", "SEC"],
-    model_info: { summary_model: "mT5", sentiment_model: "FinBERT" },
+    sentiment_scores: { positive: 58.4, negative: 22.3, neutral: 19.3 },
+    keywords: ["streaming", "advertising", "content", "subscribers", "password"],
+    model_info: { summary_model: "BART", sentiment_model: "FinBERT" },
     analyzed_at: "2026-05-28T10:10:00Z",
   },
   AMZN: {
@@ -88,7 +70,7 @@ const DUMMY = {
     main_sentiment: "neutral",
     sentiment_scores: { positive: 44.3, negative: 29.8, neutral: 25.9 },
     keywords: ["AWS", "advertising", "cloud", "Bedrock", "AI"],
-    model_info: { summary_model: "mT5", sentiment_model: "FinBERT" },
+    model_info: { summary_model: "BART", sentiment_model: "FinBERT" },
     analyzed_at: "2026-05-28T10:10:00Z",
   },
   META: {
@@ -97,7 +79,7 @@ const DUMMY = {
     main_sentiment: "positive",
     sentiment_scores: { positive: 66.7, negative: 19.8, neutral: 13.5 },
     keywords: ["Llama", "AI", "advertising", "VR", "Instagram"],
-    model_info: { summary_model: "mT5", sentiment_model: "FinBERT" },
+    model_info: { summary_model: "BART", sentiment_model: "FinBERT" },
     analyzed_at: "2026-05-28T10:10:00Z",
   },
   GOOGL: {
@@ -106,7 +88,7 @@ const DUMMY = {
     main_sentiment: "positive",
     sentiment_scores: { positive: 55.8, negative: 22.4, neutral: 21.8 },
     keywords: ["Gemini", "AI", "search", "advertising", "cloud"],
-    model_info: { summary_model: "mT5", sentiment_model: "FinBERT" },
+    model_info: { summary_model: "BART", sentiment_model: "FinBERT" },
     analyzed_at: "2026-05-28T10:10:00Z",
   },
 };

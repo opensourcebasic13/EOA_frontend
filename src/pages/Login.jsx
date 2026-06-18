@@ -1,16 +1,15 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import Footer from "../components/layout/Footer.jsx";
 import LoginForm from "../components/auth/LoginForm.jsx";
 
 /* ── 관심 주식 데이터 ── */
 const stocks = [
-  { name: "삼성전자",   price: "77,500원",    change: "0.64%", dir: "down", logo: "https://logo.clearbit.com/samsung.com" },
-  { name: "SK하이닉스", price: "194,000원",   change: "1.36%", dir: "up",   logo: "https://logo.clearbit.com/skhynix.com" },
-  { name: "테슬라",     price: "181.06달러",  change: "2.57%", dir: "up",   logo: "https://logo.clearbit.com/tesla.com" },
-  { name: "엔비디아",   price: "1,037.89달러",change: "1.12%", dir: "down", logo: "https://logo.clearbit.com/nvidia.com" },
-  { name: "애플",       price: "192.58달러",  change: "0.53%", dir: "down", logo: "https://logo.clearbit.com/apple.com" },
+  { name: "테슬라",     price: "181.06달러",   change: "2.57%", dir: "up",   logo: "https://logo.clearbit.com/tesla.com" },
+  { name: "엔비디아",   price: "1,037.89달러", change: "1.12%", dir: "down", logo: "https://logo.clearbit.com/nvidia.com" },
+  { name: "팔란티어",   price: "23.48달러",    change: "4.18%", dir: "up",   logo: "https://logo.clearbit.com/palantir.com" },
+  { name: "메타",       price: "512.33달러",   change: "1.82%", dir: "up",   logo: "https://logo.clearbit.com/meta.com" },
+  { name: "넷플릭스",   price: "550.12달러",   change: "1.24%", dir: "up",   logo: "https://logo.clearbit.com/netflix.com" },
 ];
 
 /* ── 서비스 특징 카드 ── */
@@ -42,8 +41,6 @@ function StockLogo({ src, name }) {
 
 /* ── 메인 Login 페이지 ── */
 export default function Login() {
-  const navigate = useNavigate();
-
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
 
@@ -81,8 +78,7 @@ export default function Login() {
             {stocks.map((s) => (
               <div
                 key={s.name}
-                className="bg-white rounded-2xl border border-gray-200 px-5 py-3.5 flex items-center justify-between shadow-sm hover:shadow-md transition cursor-pointer"
-                onClick={() => navigate(`/search?q=${encodeURIComponent(s.name)}`)}
+                className="bg-white rounded-2xl border border-gray-200 px-5 py-3.5 flex items-center justify-between shadow-sm"
               >
                 <div className="flex items-center gap-3">
                   <StockLogo src={s.logo} name={s.name} />

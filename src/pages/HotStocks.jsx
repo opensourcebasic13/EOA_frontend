@@ -4,21 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import Header from "../components/layout/Header.jsx";
 import Footer from "../components/layout/Footer.jsx";
 import LogoImg from "../components/common/LogoImg";
-
-const ALL_STOCKS = [
-  { name: "테슬라",        ticker: "TSLA",      price: "181.06달러",   change: "2.57",  dir: "up",   logo: "https://logo.clearbit.com/tesla.com",       tweets: 24851, tweetChange: "23.4", tweetDir: "up"   },
-  { name: "엔비디아",      ticker: "NVDA",      price: "1,037.89달러", change: "1.12",  dir: "down", logo: "https://logo.clearbit.com/nvidia.com",       tweets: 18932, tweetChange: "12.8", tweetDir: "up"   },
-  { name: "팔란티어",      ticker: "PLTR",      price: "23.48달러",    change: "4.18",  dir: "up",   logo: "https://logo.clearbit.com/palantir.com",     tweets: 12309, tweetChange: "45.6", tweetDir: "up"   },
-  { name: "AMD",           ticker: "AMD",       price: "167.18달러",   change: "1.35",  dir: "up",   logo: "https://logo.clearbit.com/amd.com",          tweets: 9842,  tweetChange: "15.7", tweetDir: "up"   },
-  { name: "마이크로소프트", ticker: "MSFT",     price: "420.72달러",   change: "0.21",  dir: "down", logo: "https://logo.clearbit.com/microsoft.com",    tweets: 9102,  tweetChange: "3.6",  tweetDir: "down" },
-  { name: "애플",          ticker: "AAPL",      price: "192.58달러",   change: "0.53",  dir: "down", logo: "https://logo.clearbit.com/apple.com",        tweets: 8245,  tweetChange: "5.2",  tweetDir: "down" },
-  { name: "삼성전자",      ticker: "005930.KS", price: "77,500원",     change: "0.64",  dir: "down", logo: "https://logo.clearbit.com/samsung.com",      tweets: 6723,  tweetChange: "8.9",  tweetDir: "up"   },
-  { name: "SK하이닉스",    ticker: "000660.KS", price: "194,000원",    change: "1.36",  dir: "up",   logo: "https://logo.clearbit.com/skhynix.com",      tweets: 5876,  tweetChange: "10.1", tweetDir: "up"   },
-  { name: "코인베이스",    ticker: "COIN",      price: "233.41달러",   change: "0.98",  dir: "up",   logo: "https://logo.clearbit.com/coinbase.com",     tweets: 4912,  tweetChange: "6.7",  tweetDir: "up"   },
-  { name: "아마존",        ticker: "AMZN",      price: "186.67달러",   change: "0.73",  dir: "down", logo: "https://logo.clearbit.com/amazon.com",       tweets: 4521,  tweetChange: "2.1",  tweetDir: "down" },
-  { name: "메타",          ticker: "META",      price: "512.33달러",   change: "1.82",  dir: "up",   logo: "https://logo.clearbit.com/meta.com",         tweets: 7341,  tweetChange: "18.3", tweetDir: "up"   },
-  { name: "구글",          ticker: "GOOGL",     price: "176.45달러",   change: "0.94",  dir: "up",   logo: "https://logo.clearbit.com/google.com",       tweets: 5123,  tweetChange: "7.2",  tweetDir: "up"   },
-];
+import { fetchTrending } from "../api/stocks";
 
 // 정렬 옵션
 const SORT_OPTIONS = [
@@ -75,10 +61,23 @@ function SmsToast({ stock, visible, onClose }) {
 export default function HotStocks() {
   const navigate  = useNavigate();
   const { watchlist, addToWatchlist } = useAuth();
+  const [allStocks, setAllStocks] = useState([]);
   const [sortKey, setSortKey]   = useState("score");
   const [alarms, setAlarms]     = useState(new Set());
   const [toast, setToast]       = useState({ visible: false, stock: null });
   const toastTimer              = useRef(null);
+
+  useEffect(() => {
+    fetchTrending().then(data => {
+      setAllStocks(data.map(s => ({
+        ...s,
+        change: s.priceChange.replace("%", ""),
+        dir:    s.priceDir,
+        tweets: parseInt(s.tweets.replace(/,/g, ""), 10) || 0,
+        tweetChange: s.tweetChange.replace("%", ""),
+      })));
+    });
+  }, []);
 
   // 토스트 자동 닫기 (3.5초)
   useEffect(() => {
@@ -106,7 +105,7 @@ export default function HotStocks() {
   const isInWatchlist = (name) => watchlist.some((s) => s.name === name);
 
   // 상승 종목만 필터링 후 정렬
-  const hotList = ALL_STOCKS
+  const hotList = allStocks
     .filter((s) => s.dir === "up")
     .sort((a, b) => {
       if (sortKey === "score")       return calcScore(b) - calcScore(a);

@@ -73,14 +73,6 @@ function Header() {
       {/* 우측 영역 */}
       <div className="flex items-center gap-5 shrink-0">
 
-        {/* 필터 아이콘 */}
-        <button className="text-gray-500 hover:text-gray-800 transition">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-              d="M3 4h18M7 12h10M11 20h2" />
-          </svg>
-        </button>
-
         {/* 알림 벨 */}
         <button className="relative text-gray-500 hover:text-gray-800 transition">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,11 +90,13 @@ function Header() {
           >
             {isLoggedIn ? (
               <>
-                <img
-                  src={user.avatar}
-                  alt="user"
-                  className="w-8 h-8 rounded-full object-cover border border-gray-200"
-                />
+                {user.avatar ? (
+                  <img src={user.avatar} alt="user" className="w-8 h-8 rounded-full object-cover border border-gray-200" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-blue-100 border border-gray-200 flex items-center justify-center text-blue-600 font-bold text-sm">
+                    {user.name?.[0] ?? "U"}
+                  </div>
+                )}
                 <span className="text-sm text-gray-700">
                   안녕하세요,&nbsp;<span className="font-semibold">{user.name}</span>님&nbsp;▾
                 </span>
@@ -129,7 +123,13 @@ function Header() {
                   {/* 유저 정보 */}
                   <div className="px-4 py-4 border-b border-gray-100">
                     <div className="flex items-center gap-3">
-                      <img src={user.avatar} className="w-10 h-10 rounded-full object-cover" />
+                      {user.avatar ? (
+                        <img src={user.avatar} className="w-10 h-10 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                          {user.name?.[0] ?? "U"}
+                        </div>
+                      )}
                       <div className="min-w-0">
                         <p className="text-sm font-bold text-gray-900 truncate">{user.name}</p>
                         <p className="text-xs text-gray-400 truncate">{user.email}</p>

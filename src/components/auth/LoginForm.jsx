@@ -1,15 +1,42 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 function LoginForm() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [id, setId] = useState("");
   const [pw, setPw] = useState("");
   const [keep, setKeep] = useState(false);
   const [showPw, setShowPw] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleLogin = () => {
-    navigate("/home");
+  const handleLogin = async () => {
+    if (!id || !pw) {
+      setError("아이디와 비밀번호를 입력하세요.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      await login(id, pw);
+      navigate("/home");
+    } catch (err) {
+      if (!err.data) {
+        setError("서버에 연결할 수 없습니다. 백엔드가 실행 중인지 확인하세요.");
+      } else {
+        const d = err.data;
+        const e = d.errors ?? d;
+        setError(e.non_field_errors?.[0] ?? d.message ?? "아이디 또는 비밀번호가 올바르지 않습니다.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") handleLogin();
   };
 
   return (
@@ -20,16 +47,21 @@ function LoginForm() {
       </p>
 
       <div className="space-y-5">
-        {/* 이메일/아이디 */}
+        {/* 아이디 */}
         <div>
-          <label className="block text-sm font-semibold text-gray-800 mb-2">이메일 또는 아이디</label>
+          <label className="block text-sm font-semibold text-gray-800 mb-2">아이디</label>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">✉</span>
+            <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none">
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7z" />
+              </svg>
+            </div>
             <input
               type="text"
               value={id}
-              onChange={(e) => setId(e.target.value)}
-              placeholder="이메일 또는 아이디를 입력하세요"
+              onChange={(e) => { setId(e.target.value); setError(""); }}
+              onKeyDown={handleKeyDown}
+              placeholder="아이디를 입력하세요"
               className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition"
             />
           </div>
@@ -39,22 +71,34 @@ function LoginForm() {
         <div>
           <label className="block text-sm font-semibold text-gray-800 mb-2">비밀번호</label>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔒</span>
+            <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none">
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm10-10V7a4 4 0 0 0-8 0v4h8z" />
+              </svg>
+            </div>
             <input
               type={showPw ? "text" : "password"}
               value={pw}
-              onChange={(e) => setPw(e.target.value)}
+              onChange={(e) => { setPw(e.target.value); setError(""); }}
+              onKeyDown={handleKeyDown}
               placeholder="비밀번호를 입력하세요"
               className="w-full pl-10 pr-10 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition"
             />
-            <button
-              onClick={() => setShowPw(!showPw)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm hover:text-gray-600"
-            >
-              {showPw ? "🙈" : "👁"}
-            </button>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3.5">
+              <button
+                onClick={() => setShowPw(!showPw)}
+                className="text-gray-400 hover:text-gray-600 text-sm"
+              >
+                {showPw ? "🙈" : "👁"}
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* 에러 메시지 */}
+        {error && (
+          <p className="text-xs text-red-500 -mt-2">{error}</p>
+        )}
 
         {/* 로그인 유지 / 비밀번호 찾기 */}
         <div className="flex items-center justify-between">
@@ -73,9 +117,10 @@ function LoginForm() {
         {/* 로그인 버튼 */}
         <button
           onClick={handleLogin}
-          className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition shadow-md shadow-blue-200/40 active:scale-[0.98]"
+          disabled={loading}
+          className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold rounded-xl transition shadow-md shadow-blue-200/40 active:scale-[0.98]"
         >
-          로그인
+          {loading ? "로그인 중..." : "로그인"}
         </button>
       </div>
 

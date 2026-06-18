@@ -2,25 +2,40 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import TweetCard from "./TweetCard.jsx";
 import { fetchHotTweets } from "../../api/tweets";
-import { QUERY_TO_TICKER } from "../../utils/tickerMap";
+import { resolveTicker } from "../../utils/tickerMap";
 
 const FILTERS = ["실시간", "인기순", "최신순"];
 
 export default function TweetList() {
   const [searchParams] = useSearchParams();
   const query  = searchParams.get("q") || "테슬라";
-  const ticker = QUERY_TO_TICKER[query] ?? "TSLA";
+  const ticker = resolveTicker(query) ?? "TSLA";
 
-  const [tweets,  setTweets]  = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filter,  setFilter]  = useState("실시간");
-  const [open,    setOpen]    = useState(false);
+  const [tweets,     setTweets]     = useState([]);
+  const [loading,    setLoading]    = useState(true);
+  const [filter,     setFilter]     = useState("실시간");
+  const [open,       setOpen]       = useState(false);
+  const [lastUpdate, setLastUpdate] = useState(null);
 
-  useEffect(() => {
-    setLoading(true);
+  const load = (silent = false) => {
+    if (!silent) setLoading(true);
     fetchHotTweets(ticker)
-      .then(setTweets)
+      .then(data => {
+        setTweets(data);
+        setLastUpdate(new Date());
+      })
       .finally(() => setLoading(false));
+  };
+
+  // 최초 로딩 + ticker 변경 시
+  useEffect(() => {
+    load(false);
+  }, [ticker]);
+
+  // 30초마다 자동 갱신 (로딩 스피너 없이 조용히)
+  useEffect(() => {
+    const id = setInterval(() => load(true), 30_000);
+    return () => clearInterval(id);
   }, [ticker]);
 
   return (
@@ -30,6 +45,11 @@ export default function TweetList() {
         <div className="flex items-center gap-2">
           <h3 className="text-base font-bold text-gray-900">지금 핫한 트윗</h3>
           <span className="text-gray-400 text-sm cursor-pointer" title="최근 1시간 기준 트윗량 상위 게시물">ⓘ</span>
+          {lastUpdate && (
+            <span className="text-[10px] text-gray-300">
+              {lastUpdate.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })} 갱신
+            </span>
+          )}
         </div>
 
         <div className="relative">

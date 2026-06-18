@@ -1,4 +1,7 @@
+import { useNavigate } from "react-router-dom";
+
 function TrendChart() {
+  const navigate = useNavigate();
   // 더미 트렌드 데이터
   //   const points = [30, 45, 35, 55, 40, 65, 50, 75, 60, 85, 70, 95, 80, 90, 78, 92];
   const points2 = [20, 30, 25, 40, 30, 50, 38, 58, 45, 65, 52, 72, 60, 70, 62, 75];
@@ -25,9 +28,17 @@ function TrendChart() {
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 p-5">
-      <div className="flex items-center gap-2 mb-1">
-        <span className="text-blue-500 font-bold">↗</span>
-        <h3 className="font-bold text-gray-900">실시간 트렌드</h3>
+      <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center gap-2">
+          <span className="text-blue-500 font-bold">↗</span>
+          <h3 className="font-bold text-gray-900">실시간 트렌드</h3>
+        </div>
+        <button
+          onClick={() => navigate("/trends")}
+          className="text-xs text-blue-500 hover:text-blue-700 font-semibold transition"
+        >
+          더보기 →
+        </button>
       </div>
       <p className="text-xs text-gray-400 mb-4">1시간 단위 트렌드 분석</p>
 
