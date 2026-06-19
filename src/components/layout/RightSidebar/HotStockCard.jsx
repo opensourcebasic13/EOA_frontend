@@ -7,13 +7,16 @@ function HotStockCard() {
   const [stocks, setStocks] = useState([]);
 
   useEffect(() => {
-    fetchTrending().then(data => {
+    const load = () => fetchTrending().then(data => {
       const hot = data
         .filter(s => s.priceDir === "up")
         .sort((a, b) => parseFloat(b.priceChange) - parseFloat(a.priceChange))
         .slice(0, 3);
       setStocks(hot.length > 0 ? hot : data.slice(0, 3));
     });
+    load();
+    const id = setInterval(load, 60000);
+    return () => clearInterval(id);
   }, []);
 
   return (

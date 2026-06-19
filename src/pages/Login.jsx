@@ -1,20 +1,20 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import logo from "../assets/logo.png";
 import Footer from "../components/layout/Footer.jsx";
 import LoginForm from "../components/auth/LoginForm.jsx";
 
 /* ── 관심 주식 데이터 ── */
 const stocks = [
-  { name: "테슬라",     price: "181.06달러",   change: "2.57%", dir: "up",   logo: "https://logo.clearbit.com/tesla.com" },
-  { name: "엔비디아",   price: "1,037.89달러", change: "1.12%", dir: "down", logo: "https://logo.clearbit.com/nvidia.com" },
-  { name: "팔란티어",   price: "23.48달러",    change: "4.18%", dir: "up",   logo: "https://logo.clearbit.com/palantir.com" },
-  { name: "메타",       price: "512.33달러",   change: "1.82%", dir: "up",   logo: "https://logo.clearbit.com/meta.com" },
-  { name: "넷플릭스",   price: "550.12달러",   change: "1.24%", dir: "up",   logo: "https://logo.clearbit.com/netflix.com" },
+  { name: "테슬라",     price: "181.06달러",   change: "2.57%", dir: "up",   logo: "https://assets.parqet.com/logos/symbol/TSLA" },
+  { name: "엔비디아",   price: "1,037.89달러", change: "1.12%", dir: "down", logo: "https://assets.parqet.com/logos/symbol/NVDA" },
+  { name: "팔란티어",   price: "23.48달러",    change: "4.18%", dir: "up",   logo: "https://assets.parqet.com/logos/symbol/PLTR" },
+  { name: "메타",       price: "512.33달러",   change: "1.82%", dir: "up",   logo: "https://assets.parqet.com/logos/symbol/META" },
+  { name: "넷플릭스",   price: "550.12달러",   change: "1.24%", dir: "up",   logo: "https://assets.parqet.com/logos/symbol/NFLX" },
 ];
 
 /* ── 서비스 특징 카드 ── */
 const features = [
-  { icon: "↗", title: "실시간 트렌드",   desc: "1시간 단위 트렌드 분석" },
+  { icon: "↗", title: "실시간 트렌드",   desc: "시간 단위 트렌드 분석" },
   { icon: "🔥", title: "핫한 종목 발견", desc: "상승 트렌드를 빠르게 포착" },
   { icon: "🔔", title: "맞춤 알림",      desc: "관심 종목 변화 알림" },
 ];

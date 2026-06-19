@@ -10,9 +10,10 @@ function MainTable() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchTrending()
-      .then(setStocks)
-      .finally(() => setLoading(false));
+    const load = () => fetchTrending().then(setStocks).finally(() => setLoading(false));
+    load();
+    const id = setInterval(load, 60000);
+    return () => clearInterval(id);
   }, []);
 
   return (
@@ -45,7 +46,6 @@ function MainTable() {
                 <th className="pb-3 pr-4 font-medium">순위</th>
                 <th className="pb-3 pr-4 font-medium">종목</th>
                 <th className="pb-3 pr-4 font-medium">트윗량</th>
-                <th className="pb-3 pr-4 font-medium">1시간 변화</th>
                 <th className="pb-3 pr-4 font-medium">주가</th>
                 <th className="pb-3 font-medium">주가 등락</th>
               </tr>
@@ -68,11 +68,6 @@ function MainTable() {
                     </div>
                   </td>
                   <td className="py-4 pr-4 font-medium text-gray-800">{s.tweets}</td>
-                  <td className="py-4 pr-4">
-                    <span className={`font-semibold ${s.tweetDir === "up" ? "text-red-500" : "text-blue-500"}`}>
-                      {s.tweetDir === "up" ? "▲" : "▼"} {s.tweetChange}
-                    </span>
-                  </td>
                   <td className="py-4 pr-4 text-gray-800">{s.price}</td>
                   <td className="py-4">
                     <span className={`font-semibold ${s.priceDir === "up" ? "text-red-500" : "text-blue-500"}`}>

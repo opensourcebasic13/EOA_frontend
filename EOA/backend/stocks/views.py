@@ -21,7 +21,7 @@ def trending_stocks(request):
     stats = list(
         StockTrendStat.objects
         .select_related("stock")
-        .all()[:10]
+        .order_by("-tweet_volume")[:20]
     )
 
     rank_map = {

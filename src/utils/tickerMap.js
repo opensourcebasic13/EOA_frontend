@@ -9,6 +9,16 @@ export const QUERY_TO_TICKER = {
   메타:           "META",  META:  "META",
   구글:           "GOOGL", GOOGL: "GOOGL",
   넷플릭스:       "NFLX",  NFLX:  "NFLX",
+  인텔:           "INTC",  INTC:  "INTC",
+  마이크론:       "MU",    MU:    "MU",
+  SPCX:           "SPCX",
+  브로드컴:       "AVGO",  AVGO:  "AVGO",
+  TSMC:           "TSM",   TSM:   "TSM",
+  ASML:           "ASML",
+  퀄컴:           "QCOM",  QCOM:  "QCOM",
+  "어플라이드 머티리얼즈": "AMAT", AMAT: "AMAT",
+  "램 리서치":    "LRCX",  LRCX:  "LRCX",
+  KLA:            "KLAC",  KLAC:  "KLAC",
 };
 
 function editDistance(a, b) {

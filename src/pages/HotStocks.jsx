@@ -68,15 +68,18 @@ export default function HotStocks() {
   const toastTimer              = useRef(null);
 
   useEffect(() => {
-    fetchTrending().then(data => {
+    const load = () => fetchTrending().then(data => {
       setAllStocks(data.map(s => ({
         ...s,
         change: s.priceChange.replace("%", ""),
         dir:    s.priceDir,
         tweets: parseInt(s.tweets.replace(/,/g, ""), 10) || 0,
-        tweetChange: s.tweetChange.replace("%", ""),
+        tweetChange: (s.tweetChange ?? "0%").replace("%", ""),
       })));
     });
+    load();
+    const id = setInterval(load, 60000);
+    return () => clearInterval(id);
   }, []);
 
   // 토스트 자동 닫기 (3.5초)

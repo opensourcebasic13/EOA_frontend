@@ -3,19 +3,30 @@ import requests
 
 
 X_RECENT_SEARCH_URL = "https://api.x.com/2/tweets/search/recent"
+X_TWEET_COUNTS_URL  = "https://api.x.com/2/tweets/counts/recent"
 
 
 SUPPORTED_STOCKS = [
-    {"ticker": "TSLA", "name": "Tesla"},
-    {"ticker": "NVDA", "name": "NVIDIA"},
-    {"ticker": "AAPL", "name": "Apple"},
-    {"ticker": "MSFT", "name": "Microsoft"},
-    {"ticker": "AMZN", "name": "Amazon"},
-    {"ticker": "GOOGL", "name": "Alphabet"},
-    {"ticker": "META", "name": "Meta"},
-    {"ticker": "AMD", "name": "AMD"},
-    {"ticker": "PLTR", "name": "Palantir"},
-    {"ticker": "NFLX", "name": "Netflix"},
+    {"ticker": "TSLA",  "name": "Tesla",               "market": "NASDAQ", "logo_url": "https://assets.parqet.com/logos/symbol/TSLA"},
+    {"ticker": "NVDA",  "name": "NVIDIA",              "market": "NASDAQ", "logo_url": "https://assets.parqet.com/logos/symbol/NVDA"},
+    {"ticker": "AAPL",  "name": "Apple",               "market": "NASDAQ", "logo_url": "https://assets.parqet.com/logos/symbol/AAPL"},
+    {"ticker": "MSFT",  "name": "Microsoft",           "market": "NASDAQ", "logo_url": "https://assets.parqet.com/logos/symbol/MSFT"},
+    {"ticker": "AMZN",  "name": "Amazon",              "market": "NASDAQ", "logo_url": "https://assets.parqet.com/logos/symbol/AMZN"},
+    {"ticker": "GOOGL", "name": "Alphabet",            "market": "NASDAQ", "logo_url": "https://assets.parqet.com/logos/symbol/GOOGL"},
+    {"ticker": "META",  "name": "Meta",                "market": "NASDAQ", "logo_url": "https://assets.parqet.com/logos/symbol/META"},
+    {"ticker": "AMD",   "name": "AMD",                 "market": "NASDAQ", "logo_url": "https://assets.parqet.com/logos/symbol/AMD"},
+    {"ticker": "PLTR",  "name": "Palantir",            "market": "NYSE",   "logo_url": "https://assets.parqet.com/logos/symbol/PLTR"},
+    {"ticker": "NFLX",  "name": "Netflix",             "market": "NASDAQ", "logo_url": "https://assets.parqet.com/logos/symbol/NFLX"},
+    {"ticker": "INTC",  "name": "Intel",               "market": "NASDAQ", "logo_url": "https://assets.parqet.com/logos/symbol/INTC"},
+    {"ticker": "MU",    "name": "Micron Technology",   "market": "NASDAQ", "logo_url": "https://assets.parqet.com/logos/symbol/MU"},
+    {"ticker": "SPCX",  "name": "SPCX",                "market": "NYSE",   "logo_url": "https://assets.parqet.com/logos/symbol/SPCX"},
+    {"ticker": "AVGO",  "name": "Broadcom",            "market": "NASDAQ", "logo_url": "https://assets.parqet.com/logos/symbol/AVGO"},
+    {"ticker": "TSM",   "name": "Taiwan Semiconductor","market": "NYSE",   "logo_url": "https://assets.parqet.com/logos/symbol/TSM"},
+    {"ticker": "ASML",  "name": "ASML Holding",        "market": "NASDAQ", "logo_url": "https://assets.parqet.com/logos/symbol/ASML"},
+    {"ticker": "QCOM",  "name": "Qualcomm",            "market": "NASDAQ", "logo_url": "https://assets.parqet.com/logos/symbol/QCOM"},
+    {"ticker": "AMAT",  "name": "Applied Materials",   "market": "NASDAQ", "logo_url": "https://assets.parqet.com/logos/symbol/AMAT"},
+    {"ticker": "LRCX",  "name": "Lam Research",        "market": "NASDAQ", "logo_url": "https://assets.parqet.com/logos/symbol/LRCX"},
+    {"ticker": "KLAC",  "name": "KLA",                 "market": "NASDAQ", "logo_url": "https://assets.parqet.com/logos/symbol/KLAC"},
 ]
 
 
@@ -77,6 +88,22 @@ def fetch_recent_posts(ticker: str, name: str, max_results: int = 10) -> list[di
         })
 
     return posts
+
+
+def fetch_tweet_count(ticker: str, name: str) -> int:
+    try:
+        response = requests.get(
+            X_TWEET_COUNTS_URL,
+            headers=get_headers(),
+            params={"query": build_query(ticker, name), "granularity": "day"},
+            timeout=15,
+        )
+        if response.status_code == 429 or response.status_code == 402:
+            return 0
+        response.raise_for_status()
+        return response.json().get("meta", {}).get("total_tweet_count", 0)
+    except Exception:
+        return 0
 
 
 def build_sample_posts(ticker: str, name: str) -> list[dict]:

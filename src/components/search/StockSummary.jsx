@@ -1,30 +1,49 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import LogoImg from "../common/LogoImg";
 import SearchChart from "./SearchChart";
 import { fetchStock, fetchChart } from "../../api/stocks";
 import { resolveTicker } from "../../utils/tickerMap";
+import { useAuth } from "../../context/AuthContext";
 
 const stockDB = {
-  테슬라:        { ticker: "TSLA",  name: "테슬라",        price: "181.06",   currency: "달러", change: "2.57",  changeAbs: "+4.53",  dir: "up",   mktCap: "5,752.3억 달러",  volume: "1,253.4만", high: "182.35달러",   low: "176.52달러",   high52: "299.29달러",    low52: "138.80달러",  logo: "https://logo.clearbit.com/tesla.com" },
-  TSLA:          { ticker: "TSLA",  name: "테슬라",        price: "181.06",   currency: "달러", change: "2.57",  changeAbs: "+4.53",  dir: "up",   mktCap: "5,752.3억 달러",  volume: "1,253.4만", high: "182.35달러",   low: "176.52달러",   high52: "299.29달러",    low52: "138.80달러",  logo: "https://logo.clearbit.com/tesla.com" },
-  엔비디아:      { ticker: "NVDA",  name: "엔비디아",      price: "1,037.89", currency: "달러", change: "1.12",  changeAbs: "-11.74", dir: "down", mktCap: "25,540억 달러",   volume: "4,512.1만", high: "1,053.22달러", low: "1,021.45달러", high52: "1,099.23달러",  low52: "410.54달러",  logo: "https://logo.clearbit.com/nvidia.com" },
-  NVDA:          { ticker: "NVDA",  name: "엔비디아",      price: "1,037.89", currency: "달러", change: "1.12",  changeAbs: "-11.74", dir: "down", mktCap: "25,540억 달러",   volume: "4,512.1만", high: "1,053.22달러", low: "1,021.45달러", high52: "1,099.23달러",  low52: "410.54달러",  logo: "https://logo.clearbit.com/nvidia.com" },
-  팔란티어:      { ticker: "PLTR",  name: "팔란티어",      price: "23.48",    currency: "달러", change: "4.18",  changeAbs: "+0.94",  dir: "up",   mktCap: "504.1억 달러",    volume: "82.3만",    high: "24.10달러",    low: "22.75달러",    high52: "27.50달러",     low52: "14.21달러",   logo: "https://logo.clearbit.com/palantir.com" },
-  PLTR:          { ticker: "PLTR",  name: "팔란티어",      price: "23.48",    currency: "달러", change: "4.18",  changeAbs: "+0.94",  dir: "up",   mktCap: "504.1억 달러",    volume: "82.3만",    high: "24.10달러",    low: "22.75달러",    high52: "27.50달러",     low52: "14.21달러",   logo: "https://logo.clearbit.com/palantir.com" },
-  애플:          { ticker: "AAPL",  name: "애플",          price: "192.58",   currency: "달러", change: "0.53",  changeAbs: "-1.03",  dir: "down", mktCap: "29,720억 달러",   volume: "5,643.2만", high: "193.89달러",   low: "191.24달러",   high52: "199.62달러",    low52: "164.08달러",  logo: "https://logo.clearbit.com/apple.com" },
-  AAPL:          { ticker: "AAPL",  name: "애플",          price: "192.58",   currency: "달러", change: "0.53",  changeAbs: "-1.03",  dir: "down", mktCap: "29,720억 달러",   volume: "5,643.2만", high: "193.89달러",   low: "191.24달러",   high52: "199.62달러",    low52: "164.08달러",  logo: "https://logo.clearbit.com/apple.com" },
-  AMD:           { ticker: "AMD",   name: "AMD",           price: "167.18",   currency: "달러", change: "1.35",  changeAbs: "+2.23",  dir: "up",   mktCap: "2,701.2억 달러",  volume: "6,234.5만", high: "168.45달러",   low: "165.20달러",   high52: "227.30달러",    low52: "141.91달러",  logo: "https://logo.clearbit.com/amd.com" },
-  마이크로소프트: { ticker: "MSFT", name: "마이크로소프트", price: "420.72",   currency: "달러", change: "0.21",  changeAbs: "-0.88",  dir: "down", mktCap: "31,267.8억 달러", volume: "1,987.3만", high: "422.85달러",   low: "419.33달러",   high52: "468.35달러",    low52: "362.90달러",  logo: "https://logo.clearbit.com/microsoft.com" },
-  MSFT:          { ticker: "MSFT", name: "마이크로소프트",  price: "420.72",   currency: "달러", change: "0.21",  changeAbs: "-0.88",  dir: "down", mktCap: "31,267.8억 달러", volume: "1,987.3만", high: "422.85달러",   low: "419.33달러",   high52: "468.35달러",    low52: "362.90달러",  logo: "https://logo.clearbit.com/microsoft.com" },
-  아마존:        { ticker: "AMZN",  name: "아마존",        price: "186.67",   currency: "달러", change: "0.73",  changeAbs: "-1.37",  dir: "down", mktCap: "19,551.2억 달러", volume: "3,215.7만", high: "188.90달러",   low: "185.21달러",   high52: "224.46달러",    low52: "153.28달러",  logo: "https://logo.clearbit.com/amazon.com" },
-  AMZN:          { ticker: "AMZN",  name: "아마존",        price: "186.67",   currency: "달러", change: "0.73",  changeAbs: "-1.37",  dir: "down", mktCap: "19,551.2억 달러", volume: "3,215.7만", high: "188.90달러",   low: "185.21달러",   high52: "224.46달러",    low52: "153.28달러",  logo: "https://logo.clearbit.com/amazon.com" },
-  넷플릭스:      { ticker: "NFLX",  name: "넷플릭스",      price: "550.12",   currency: "달러", change: "1.24",  changeAbs: "+6.72",  dir: "up",   mktCap: "2,381.5억 달러",  volume: "2,134.2만", high: "553.40달러",   low: "545.80달러",   high52: "641.18달러",    low52: "394.85달러",  logo: "https://logo.clearbit.com/netflix.com" },
-  NFLX:          { ticker: "NFLX",  name: "넷플릭스",      price: "550.12",   currency: "달러", change: "1.24",  changeAbs: "+6.72",  dir: "up",   mktCap: "2,381.5억 달러",  volume: "2,134.2만", high: "553.40달러",   low: "545.80달러",   high52: "641.18달러",    low52: "394.85달러",  logo: "https://logo.clearbit.com/netflix.com" },
-  메타:          { ticker: "META",  name: "메타",          price: "512.33",   currency: "달러", change: "1.82",  changeAbs: "+9.18",  dir: "up",   mktCap: "13,042.8억 달러", volume: "2,843.1만", high: "514.90달러",   low: "508.72달러",   high52: "589.91달러",    low52: "367.29달러",  logo: "https://logo.clearbit.com/meta.com" },
-  META:          { ticker: "META",  name: "메타",          price: "512.33",   currency: "달러", change: "1.82",  changeAbs: "+9.18",  dir: "up",   mktCap: "13,042.8억 달러", volume: "2,843.1만", high: "514.90달러",   low: "508.72달러",   high52: "589.91달러",    low52: "367.29달러",  logo: "https://logo.clearbit.com/meta.com" },
-  구글:          { ticker: "GOOGL", name: "구글",          price: "176.45",   currency: "달러", change: "0.94",  changeAbs: "+1.64",  dir: "up",   mktCap: "21,580.3억 달러", volume: "2,198.4만", high: "178.22달러",   low: "175.10달러",   high52: "207.05달러",    low52: "155.00달러",  logo: "https://logo.clearbit.com/google.com" },
-  GOOGL:         { ticker: "GOOGL", name: "구글",          price: "176.45",   currency: "달러", change: "0.94",  changeAbs: "+1.64",  dir: "up",   mktCap: "21,580.3억 달러", volume: "2,198.4만", high: "178.22달러",   low: "175.10달러",   high52: "207.05달러",    low52: "155.00달러",  logo: "https://logo.clearbit.com/google.com" },
+  테슬라:        { ticker: "TSLA",  name: "테슬라",        price: "181.06",   currency: "달러", change: "2.57",  changeAbs: "+4.53",  dir: "up",   mktCap: "5,752.3억 달러",  volume: "1,253.4만", high: "182.35달러",   low: "176.52달러",   high52: "299.29달러",    low52: "138.80달러",  logo: "https://assets.parqet.com/logos/symbol/TSLA" },
+  TSLA:          { ticker: "TSLA",  name: "테슬라",        price: "181.06",   currency: "달러", change: "2.57",  changeAbs: "+4.53",  dir: "up",   mktCap: "5,752.3억 달러",  volume: "1,253.4만", high: "182.35달러",   low: "176.52달러",   high52: "299.29달러",    low52: "138.80달러",  logo: "https://assets.parqet.com/logos/symbol/TSLA" },
+  엔비디아:      { ticker: "NVDA",  name: "엔비디아",      price: "1,037.89", currency: "달러", change: "1.12",  changeAbs: "-11.74", dir: "down", mktCap: "25,540억 달러",   volume: "4,512.1만", high: "1,053.22달러", low: "1,021.45달러", high52: "1,099.23달러",  low52: "410.54달러",  logo: "https://assets.parqet.com/logos/symbol/NVDA" },
+  NVDA:          { ticker: "NVDA",  name: "엔비디아",      price: "1,037.89", currency: "달러", change: "1.12",  changeAbs: "-11.74", dir: "down", mktCap: "25,540억 달러",   volume: "4,512.1만", high: "1,053.22달러", low: "1,021.45달러", high52: "1,099.23달러",  low52: "410.54달러",  logo: "https://assets.parqet.com/logos/symbol/NVDA" },
+  팔란티어:      { ticker: "PLTR",  name: "팔란티어",      price: "23.48",    currency: "달러", change: "4.18",  changeAbs: "+0.94",  dir: "up",   mktCap: "504.1억 달러",    volume: "82.3만",    high: "24.10달러",    low: "22.75달러",    high52: "27.50달러",     low52: "14.21달러",   logo: "https://assets.parqet.com/logos/symbol/PLTR" },
+  PLTR:          { ticker: "PLTR",  name: "팔란티어",      price: "23.48",    currency: "달러", change: "4.18",  changeAbs: "+0.94",  dir: "up",   mktCap: "504.1억 달러",    volume: "82.3만",    high: "24.10달러",    low: "22.75달러",    high52: "27.50달러",     low52: "14.21달러",   logo: "https://assets.parqet.com/logos/symbol/PLTR" },
+  애플:          { ticker: "AAPL",  name: "애플",          price: "192.58",   currency: "달러", change: "0.53",  changeAbs: "-1.03",  dir: "down", mktCap: "29,720억 달러",   volume: "5,643.2만", high: "193.89달러",   low: "191.24달러",   high52: "199.62달러",    low52: "164.08달러",  logo: "https://assets.parqet.com/logos/symbol/AAPL" },
+  AAPL:          { ticker: "AAPL",  name: "애플",          price: "192.58",   currency: "달러", change: "0.53",  changeAbs: "-1.03",  dir: "down", mktCap: "29,720억 달러",   volume: "5,643.2만", high: "193.89달러",   low: "191.24달러",   high52: "199.62달러",    low52: "164.08달러",  logo: "https://assets.parqet.com/logos/symbol/AAPL" },
+  AMD:           { ticker: "AMD",   name: "AMD",           price: "167.18",   currency: "달러", change: "1.35",  changeAbs: "+2.23",  dir: "up",   mktCap: "2,701.2억 달러",  volume: "6,234.5만", high: "168.45달러",   low: "165.20달러",   high52: "227.30달러",    low52: "141.91달러",  logo: "https://assets.parqet.com/logos/symbol/AMD" },
+  마이크로소프트: { ticker: "MSFT", name: "마이크로소프트", price: "420.72",   currency: "달러", change: "0.21",  changeAbs: "-0.88",  dir: "down", mktCap: "31,267.8억 달러", volume: "1,987.3만", high: "422.85달러",   low: "419.33달러",   high52: "468.35달러",    low52: "362.90달러",  logo: "https://assets.parqet.com/logos/symbol/MSFT" },
+  MSFT:          { ticker: "MSFT", name: "마이크로소프트",  price: "420.72",   currency: "달러", change: "0.21",  changeAbs: "-0.88",  dir: "down", mktCap: "31,267.8억 달러", volume: "1,987.3만", high: "422.85달러",   low: "419.33달러",   high52: "468.35달러",    low52: "362.90달러",  logo: "https://assets.parqet.com/logos/symbol/MSFT" },
+  아마존:        { ticker: "AMZN",  name: "아마존",        price: "186.67",   currency: "달러", change: "0.73",  changeAbs: "-1.37",  dir: "down", mktCap: "19,551.2억 달러", volume: "3,215.7만", high: "188.90달러",   low: "185.21달러",   high52: "224.46달러",    low52: "153.28달러",  logo: "https://assets.parqet.com/logos/symbol/AMZN" },
+  AMZN:          { ticker: "AMZN",  name: "아마존",        price: "186.67",   currency: "달러", change: "0.73",  changeAbs: "-1.37",  dir: "down", mktCap: "19,551.2억 달러", volume: "3,215.7만", high: "188.90달러",   low: "185.21달러",   high52: "224.46달러",    low52: "153.28달러",  logo: "https://assets.parqet.com/logos/symbol/AMZN" },
+  넷플릭스:      { ticker: "NFLX",  name: "넷플릭스",      price: "550.12",   currency: "달러", change: "1.24",  changeAbs: "+6.72",  dir: "up",   mktCap: "2,381.5억 달러",  volume: "2,134.2만", high: "553.40달러",   low: "545.80달러",   high52: "641.18달러",    low52: "394.85달러",  logo: "https://assets.parqet.com/logos/symbol/NFLX" },
+  NFLX:          { ticker: "NFLX",  name: "넷플릭스",      price: "550.12",   currency: "달러", change: "1.24",  changeAbs: "+6.72",  dir: "up",   mktCap: "2,381.5억 달러",  volume: "2,134.2만", high: "553.40달러",   low: "545.80달러",   high52: "641.18달러",    low52: "394.85달러",  logo: "https://assets.parqet.com/logos/symbol/NFLX" },
+  메타:          { ticker: "META",  name: "메타",          price: "512.33",   currency: "달러", change: "1.82",  changeAbs: "+9.18",  dir: "up",   mktCap: "13,042.8억 달러", volume: "2,843.1만", high: "514.90달러",   low: "508.72달러",   high52: "589.91달러",    low52: "367.29달러",  logo: "https://assets.parqet.com/logos/symbol/META" },
+  META:          { ticker: "META",  name: "메타",          price: "512.33",   currency: "달러", change: "1.82",  changeAbs: "+9.18",  dir: "up",   mktCap: "13,042.8억 달러", volume: "2,843.1만", high: "514.90달러",   low: "508.72달러",   high52: "589.91달러",    low52: "367.29달러",  logo: "https://assets.parqet.com/logos/symbol/META" },
+  구글:          { ticker: "GOOGL", name: "구글",          price: "176.45",   currency: "달러", change: "0.94",  changeAbs: "+1.64",  dir: "up",   mktCap: "21,580.3억 달러", volume: "2,198.4만", high: "178.22달러",   low: "175.10달러",   high52: "207.05달러",    low52: "155.00달러",  logo: "https://assets.parqet.com/logos/symbol/GOOGL" },
+  GOOGL:         { ticker: "GOOGL", name: "구글",          price: "176.45",   currency: "달러", change: "0.94",  changeAbs: "+1.64",  dir: "up",   mktCap: "21,580.3억 달러", volume: "2,198.4만", high: "178.22달러",   low: "175.10달러",   high52: "207.05달러",    low52: "155.00달러",  logo: "https://assets.parqet.com/logos/symbol/GOOGL" },
+  인텔:          { ticker: "INTC",  name: "인텔",          price: "133.99",   currency: "달러", change: "10.64", changeAbs: "+12.94", dir: "up",   mktCap: "5,760.1억 달러",  volume: "8,321.4만", high: "136.40달러",   low: "129.20달러",   high52: "51.28달러",     low52: "18.51달러",   logo: "https://assets.parqet.com/logos/symbol/INTC" },
+  INTC:          { ticker: "INTC",  name: "인텔",          price: "133.99",   currency: "달러", change: "10.64", changeAbs: "+12.94", dir: "up",   mktCap: "5,760.1억 달러",  volume: "8,321.4만", high: "136.40달러",   low: "129.20달러",   high52: "51.28달러",     low52: "18.51달러",   logo: "https://assets.parqet.com/logos/symbol/INTC" },
+  마이크론:      { ticker: "MU",    name: "마이크론",      price: "112.45",   currency: "달러", change: "8.70",  changeAbs: "+9.00",  dir: "up",   mktCap: "1,248.3억 달러",  volume: "3,412.7만", high: "114.80달러",   low: "108.30달러",   high52: "157.54달러",    low52: "67.63달러",   logo: "https://assets.parqet.com/logos/symbol/MU" },
+  MU:            { ticker: "MU",    name: "마이크론",      price: "112.45",   currency: "달러", change: "8.70",  changeAbs: "+9.00",  dir: "up",   mktCap: "1,248.3억 달러",  volume: "3,412.7만", high: "114.80달러",   low: "108.30달러",   high52: "157.54달러",    low52: "67.63달러",   logo: "https://assets.parqet.com/logos/symbol/MU" },
+  SPCX:          { ticker: "SPCX",  name: "SPCX",          price: "185.00",   currency: "달러", change: "3.56",  changeAbs: "-6.84",  dir: "down", mktCap: "-",               volume: "12.4만",    high: "190.20달러",   low: "183.50달러",   high52: "210.00달러",    low52: "155.00달러",  logo: "https://assets.parqet.com/logos/symbol/SPCX" },
+  브로드컴:      { ticker: "AVGO",  name: "브로드컴",      price: "411.35",   currency: "달러", change: "4.70",  changeAbs: "+18.46", dir: "up",   mktCap: "19,321.4억 달러", volume: "1,823.5만", high: "415.80달러",   low: "403.20달러",   high52: "251.88달러",    low52: "117.40달러",  logo: "https://assets.parqet.com/logos/symbol/AVGO" },
+  AVGO:          { ticker: "AVGO",  name: "브로드컴",      price: "411.35",   currency: "달러", change: "4.70",  changeAbs: "+18.46", dir: "up",   mktCap: "19,321.4억 달러", volume: "1,823.5만", high: "415.80달러",   low: "403.20달러",   high52: "251.88달러",    low52: "117.40달러",  logo: "https://assets.parqet.com/logos/symbol/AVGO" },
+  TSMC:          { ticker: "TSM",   name: "TSMC",          price: "462.12",   currency: "달러", change: "6.94",  changeAbs: "+29.98", dir: "up",   mktCap: "23,940.8억 달러", volume: "2,134.6만", high: "468.30달러",   low: "450.10달러",   high52: "226.40달러",    low52: "127.58달러",  logo: "https://assets.parqet.com/logos/symbol/TSM" },
+  TSM:           { ticker: "TSM",   name: "TSMC",          price: "462.12",   currency: "달러", change: "6.94",  changeAbs: "+29.98", dir: "up",   mktCap: "23,940.8억 달러", volume: "2,134.6만", high: "468.30달러",   low: "450.10달러",   high52: "226.40달러",    low52: "127.58달러",  logo: "https://assets.parqet.com/logos/symbol/TSM" },
+  ASML:          { ticker: "ASML",  name: "ASML",          price: "1,929.68", currency: "달러", change: "3.31",  changeAbs: "+61.88", dir: "up",   mktCap: "7,621.3억 달러",  volume: "412.8만",   high: "1,945.00달러", low: "1,890.20달러", high52: "1,110.09달러",  low52: "628.00달러",  logo: "https://assets.parqet.com/logos/symbol/ASML" },
+  퀄컴:          { ticker: "QCOM",  name: "퀄컴",          price: "226.11",   currency: "달러", change: "6.17",  changeAbs: "+13.12", dir: "up",   mktCap: "2,391.5억 달러",  volume: "2,341.2만", high: "229.40달러",   low: "219.80달러",   high52: "230.63달러",    low52: "143.97달러",  logo: "https://assets.parqet.com/logos/symbol/QCOM" },
+  QCOM:          { ticker: "QCOM",  name: "퀄컴",          price: "226.11",   currency: "달러", change: "6.17",  changeAbs: "+13.12", dir: "up",   mktCap: "2,391.5억 달러",  volume: "2,341.2만", high: "229.40달러",   low: "219.80달러",   high52: "230.63달러",    low52: "143.97달러",  logo: "https://assets.parqet.com/logos/symbol/QCOM" },
+  "어플라이드 머티리얼즈": { ticker: "AMAT", name: "어플라이드 머티리얼즈", price: "617.11", currency: "달러", change: "4.08", changeAbs: "+24.15", dir: "up", mktCap: "5,124.7억 달러", volume: "1,214.3만", high: "622.80달러", low: "601.40달러", high52: "255.89달러", low52: "134.20달러", logo: "https://assets.parqet.com/logos/symbol/AMAT" },
+  AMAT:          { ticker: "AMAT",  name: "어플라이드 머티리얼즈", price: "617.11", currency: "달러", change: "4.08", changeAbs: "+24.15", dir: "up", mktCap: "5,124.7억 달러", volume: "1,214.3만", high: "622.80달러", low: "601.40달러", high52: "255.89달러", low52: "134.20달러", logo: "https://assets.parqet.com/logos/symbol/AMAT" },
+  "램 리서치":   { ticker: "LRCX",  name: "램 리서치",     price: "389.04",   currency: "달러", change: "3.97",  changeAbs: "+14.86", dir: "up",   mktCap: "512.8억 달러",    volume: "823.4만",   high: "394.20달러",   low: "380.10달러",   high52: "116.94달러",    low52: "62.05달러",   logo: "https://assets.parqet.com/logos/symbol/LRCX" },
+  LRCX:          { ticker: "LRCX",  name: "램 리서치",     price: "389.04",   currency: "달러", change: "3.97",  changeAbs: "+14.86", dir: "up",   mktCap: "512.8억 달러",    volume: "823.4만",   high: "394.20달러",   low: "380.10달러",   high52: "116.94달러",    low52: "62.05달러",   logo: "https://assets.parqet.com/logos/symbol/LRCX" },
+  KLA:           { ticker: "KLAC",  name: "KLA",           price: "259.56",   currency: "달러", change: "8.73",  changeAbs: "+20.88", dir: "up",   mktCap: "365.2억 달러",    volume: "1,043.2만", high: "263.40달러",   low: "251.80달러",   high52: "107.62달러",    low52: "50.23달러",   logo: "https://assets.parqet.com/logos/symbol/KLAC" },
+  KLAC:          { ticker: "KLAC",  name: "KLA",           price: "259.56",   currency: "달러", change: "8.73",  changeAbs: "+20.88", dir: "up",   mktCap: "365.2억 달러",    volume: "1,043.2만", high: "263.40달러",   low: "251.80달러",   high52: "107.62달러",    low52: "50.23달러",   logo: "https://assets.parqet.com/logos/symbol/KLAC" },
 };
 
 function levenshtein(a, b) {
@@ -88,10 +107,20 @@ function StockSummary() {
   const similarMatch = exactMatch ? null : findSimilar(query);
   const dummy = exactMatch ?? similarMatch ?? null;
 
+  const { watchlist, addToWatchlist, removeFromWatchlist, isLoggedIn } = useAuth();
+
   const [stock,      setStock]      = useState(dummy);
   const [chartPts,   setChartPts]   = useState(null);
   const [activeTab,  setActiveTab]  = useState("1일");
-  const [starred,    setStarred]    = useState(false);
+  const [toast,      setToast]      = useState("");
+
+  const starred = stock ? watchlist.some(s => s.ticker === stock.ticker) : false;
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(""), 2500);
+    return () => clearTimeout(t);
+  }, [toast]);
 
   useEffect(() => {
     const matched = stockDB[query] ?? findSimilar(query) ?? null;
@@ -100,7 +129,7 @@ function StockSummary() {
     const resolvedTicker = ticker ?? matched?.ticker ?? null;
     if (!matched || !resolvedTicker) return;
 
-    fetchStock(resolvedTicker).then((data) => {
+    const loadPrice = () => fetchStock(resolvedTicker).then((data) => {
       if (!data) return;
       const dir      = (data.price_change_rate ?? 0) >= 0 ? "up" : "down";
       const currency = data.currency === "KRW" ? "원" : "달러";
@@ -119,9 +148,14 @@ function StockSummary() {
       }));
     });
 
-    fetchChart(resolvedTicker).then((pts) => {
+    const loadChart = () => fetchChart(resolvedTicker).then((pts) => {
       if (pts && pts.length >= 2) setChartPts(pts);
     });
+
+    loadPrice();
+    loadChart();
+    const id = setInterval(() => { loadPrice(); loadChart(); }, 60000);
+    return () => clearInterval(id);
   }, [query, ticker]);
 
   if (!stock) {
@@ -150,7 +184,12 @@ function StockSummary() {
   const priceColor = isUp ? "text-red-500" : "text-blue-500";
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-6">
+    <div className="bg-white rounded-2xl border border-gray-200 p-6 relative">
+      {toast && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-gray-800 text-white text-xs font-medium px-4 py-2 rounded-full shadow-lg whitespace-nowrap animate-fade-in">
+          {toast}
+        </div>
+      )}
 
       {similarMatch && !exactMatch && (
         <div className="mb-4 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-2 text-sm">
@@ -169,8 +208,25 @@ function StockSummary() {
             <h2 className="text-xl font-bold text-gray-900">{stock.name}</h2>
             <span className="text-gray-400 text-base font-medium">({stock.ticker})</span>
             <button
-              onClick={() => setStarred(!starred)}
+              onClick={() => {
+                if (!isLoggedIn) { setToast("로그인 후 이용할 수 있습니다."); return; }
+                if (starred) {
+                  removeFromWatchlist(stock.name);
+                  setToast(`${stock.name}을(를) 관심 종목에서 제거했습니다.`);
+                } else {
+                  addToWatchlist({
+                    name:   stock.name,
+                    ticker: stock.ticker,
+                    logo:   stock.logo,
+                    price:  `${stock.price}${stock.currency}`,
+                    change: `${stock.change}%`,
+                    dir:    stock.dir,
+                  });
+                  setToast(`${stock.name}을(를) 관심 종목에 추가했습니다.`);
+                }
+              }}
               className={`text-xl transition ${starred ? "text-yellow-400" : "text-gray-300 hover:text-yellow-300"}`}
+              title={starred ? "관심 종목 해제" : "관심 종목 추가"}
             >
               {starred ? "★" : "☆"}
             </button>

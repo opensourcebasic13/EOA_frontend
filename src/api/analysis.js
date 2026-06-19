@@ -93,6 +93,7 @@ const DUMMY = {
   },
 };
 
+
 function transform(raw) {
   const scores = {
     positive: Math.round(raw.sentiment_scores.positive * 10) / 10,

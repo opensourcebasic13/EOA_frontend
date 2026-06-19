@@ -1,7 +1,7 @@
 const tagColors = {
-  긍정: "bg-green-100 text-green-700",
-  부정: "bg-red-100 text-red-600",
-  중립: "bg-gray-100 text-gray-600",
+  매수: "bg-red-100 text-red-600",
+  매도: "bg-blue-100 text-blue-600",
+  관망: "bg-gray-100 text-gray-600",
 };
 
 export default function TweetCard({ tweet }) {

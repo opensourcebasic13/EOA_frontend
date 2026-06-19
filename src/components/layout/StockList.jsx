@@ -1,11 +1,11 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 
 const stocks = [
-  { name: "테슬라",   price: "181.06달러",   change: "2.57%", dir: "up",   logo: "https://logo.clearbit.com/tesla.com" },
-  { name: "엔비디아", price: "1,037.89달러", change: "1.12%", dir: "down", logo: "https://logo.clearbit.com/nvidia.com" },
-  { name: "팔란티어", price: "23.48달러",    change: "4.18%", dir: "up",   logo: "https://logo.clearbit.com/palantir.com" },
-  { name: "메타",     price: "512.33달러",   change: "1.82%", dir: "up",   logo: "https://logo.clearbit.com/meta.com" },
-  { name: "넷플릭스", price: "550.12달러",   change: "1.24%", dir: "up",   logo: "https://logo.clearbit.com/netflix.com" },
+  { name: "테슬라",   price: "181.06달러",   change: "2.57%", dir: "up",   logo: "https://assets.parqet.com/logos/symbol/TSLA" },
+  { name: "엔비디아", price: "1,037.89달러", change: "1.12%", dir: "down", logo: "https://assets.parqet.com/logos/symbol/NVDA" },
+  { name: "팔란티어", price: "23.48달러",    change: "4.18%", dir: "up",   logo: "https://assets.parqet.com/logos/symbol/PLTR" },
+  { name: "메타",     price: "512.33달러",   change: "1.82%", dir: "up",   logo: "https://assets.parqet.com/logos/symbol/META" },
+  { name: "넷플릭스", price: "550.12달러",   change: "1.24%", dir: "up",   logo: "https://assets.parqet.com/logos/symbol/NFLX" },
 ];
 
 function StockLogo({ src, name }) {

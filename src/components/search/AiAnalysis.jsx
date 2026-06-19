@@ -4,9 +4,9 @@ import { fetchAnalysis } from "../../api/analysis";
 import { resolveTicker } from "../../utils/tickerMap";
 
 const SENTIMENT = {
-  positive: { label: "긍정", bg: "bg-red-100",  text: "text-red-600",  bar: "bg-red-400"  },
-  negative: { label: "부정", bg: "bg-blue-100", text: "text-blue-600", bar: "bg-blue-400" },
-  neutral:  { label: "중립", bg: "bg-gray-100", text: "text-gray-600", bar: "bg-gray-300" },
+  positive: { label: "매수", badge: "매수 우세", bg: "bg-red-100",  text: "text-red-600",  bar: "bg-red-400"  },
+  negative: { label: "매도", badge: "매도 우세", bg: "bg-blue-100", text: "text-blue-600", bar: "bg-blue-400" },
+  neutral:  { label: "관망", badge: "관망 우세", bg: "bg-gray-100", text: "text-gray-600", bar: "bg-gray-300" },
 };
 
 function formatDate(iso) {
@@ -104,7 +104,7 @@ export default function AiAnalysis() {
           <span className="text-lg">🤖</span>
           <h3 className="text-base font-bold text-gray-900">AI 분석 요약</h3>
           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${main.bg} ${main.text}`}>
-            {main.label}
+            {main.badge}
           </span>
         </div>
         <div className="text-right">
@@ -122,7 +122,7 @@ export default function AiAnalysis() {
       )}
 
       <div className="mb-5">
-        <p className="text-xs font-semibold text-gray-500 mb-3">감성 분석</p>
+        <p className="text-xs font-semibold text-gray-500 mb-3">투자 유형 분석</p>
         <div className="flex rounded-full overflow-hidden h-3 mb-3">
           {scores.map(({ key, value }) => (
             <div

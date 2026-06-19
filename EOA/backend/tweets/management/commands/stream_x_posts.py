@@ -1,3 +1,4 @@
+import time
 from requests.exceptions import HTTPError
 
 from django.core.management.base import BaseCommand
@@ -9,8 +10,10 @@ from tweets.models import TweetPost
 from tweets.services.x_stream_client import (
     SUPPORTED_STOCKS,
     fetch_recent_posts,
+    fetch_tweet_count,
     build_sample_posts,
 )
+from tweets.services.sentiment import analyze_sentiment
 
 
 class Command(BaseCommand):
@@ -69,11 +72,12 @@ class Command(BaseCommand):
                     self.stdout.write(self.style.WARNING(f"{ticker} X 수집 실패: {error}"))
                     posts = build_sample_posts(ticker, name)
 
-            self.save_posts(stock, ticker, posts)
+            self.save_posts(stock, ticker, name, posts)
+            time.sleep(3)  # rate limit 방지: 종목 사이 3초 대기
 
         self.stdout.write(self.style.SUCCESS("X 게시글 수집 작업 완료"))
 
-    def save_posts(self, stock, ticker, posts):
+    def save_posts(self, stock, ticker, name, posts):
         TweetPost.objects.filter(stock=stock).delete()
 
         for index, post in enumerate(posts):
@@ -85,13 +89,17 @@ class Command(BaseCommand):
             if posted_at is None:
                 posted_at = timezone.now()
 
+            content = post.get("content", "")
+            sentiment = analyze_sentiment(content)
+            self.stdout.write(f"  [{ticker}] sentiment={sentiment}: {content[:60]}")
+
             TweetPost.objects.create(
                 stock=stock,
                 author_name=post.get("author_name", "X User"),
                 author_handle=post.get("author_handle", "@x_user"),
-                content=post.get("content", ""),
+                content=content,
                 hashtags=[ticker, stock.name],
-                sentiment="neutral",
+                sentiment=sentiment,
                 like_count=post.get("like_count", 0),
                 reply_count=post.get("reply_count", 0),
                 repost_count=post.get("repost_count", 0),
@@ -99,10 +107,11 @@ class Command(BaseCommand):
                 posted_at=posted_at,
             )
 
+        real_count = fetch_tweet_count(ticker, name)
         StockTrendStat.objects.update_or_create(
             stock=stock,
             defaults={
-                "tweet_volume": len(posts),
+                "tweet_volume": real_count if real_count > 0 else len(posts),
                 "one_hour_change_rate": 0,
             },
         )

@@ -40,7 +40,7 @@ function TrendChart() {
           더보기 →
         </button>
       </div>
-      <p className="text-xs text-gray-400 mb-4">1시간 단위 트렌드 분석</p>
+      <p className="text-xs text-gray-400 mb-4">시간 단위 트렌드 분석</p>
 
       <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-24" preserveAspectRatio="none">
         <defs>
